@@ -45,7 +45,7 @@ tp0320_cpu_device::tp0320_cpu_device(const machine_config &mconfig, const char *
 
 
 // machine configs
-MACHINE_CONFIG_MEMBER(tp0320_cpu_device::device_add_mconfig)
+MACHINE_CONFIG_START(tp0320_cpu_device::device_add_mconfig)
 
 	// main opcodes PLA(partial), microinstructions PLA
 	MCFG_PLA_ADD("ipla", 9, 6, 8)
@@ -67,7 +67,7 @@ u32 tp0320_cpu_device::decode_micro(u8 sel)
 {
 	u32 decode = 0;
 
-	sel = BITSWAP8(sel,7,6,0,1,2,3,4,5); // lines are reversed
+	sel = bitswap<8>(sel,7,6,0,1,2,3,4,5); // lines are reversed
 	u32 mask = m_mpla->read(sel);
 	mask ^= 0x0bff0; // invert active-negative
 

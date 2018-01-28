@@ -74,11 +74,12 @@ public:
 	DECLARE_WRITE_LINE_MEMBER(mirage_doc_irq);
 	DECLARE_READ8_MEMBER(mirage_adc_read);
 
+	void mirage(machine_config &config);
 protected:
 	virtual void machine_reset() override;
 	virtual void video_start() override;
 
-	required_device<m6809e_device> m_maincpu;
+	required_device<mc6809e_device> m_maincpu;
 	required_device<wd1772_device> m_fdc;
 	required_device<via6522_device> m_via;
 
@@ -207,8 +208,8 @@ WRITE8_MEMBER(enmirage_state::mirage_via_write_portb)
 	}
 }
 
-static MACHINE_CONFIG_START( mirage )
-	MCFG_CPU_ADD("maincpu", M6809E, 4000000)
+MACHINE_CONFIG_START(enmirage_state::mirage)
+	MCFG_CPU_ADD("maincpu", MC6809E, 2000000)
 	MCFG_CPU_PROGRAM_MAP(mirage_map)
 
 	MCFG_DEFAULT_LAYOUT( layout_mirage )

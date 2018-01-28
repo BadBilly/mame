@@ -13,15 +13,15 @@
     - inputs for i4300;
     - hyprduel.cpp uses scanline attribute which crawls to unusable state
       with current video routines here;
- 	- CRT Controller, also understand why it needs so many writes before actual parameters;
-	- Wrong color bars in service mode (e.g. balcube, toride2g). They use solid color tiles (80xx), 
-	  but the right palette is not at 00-ff.
-	  Related to the unknown table in the RAM mapped just before the palette?
-	  Update: the colors should have a common bank of 0xb (so 0x8bxx), it's unknown why the values 
-	  diverges, the blitter is responsible of that upload fwiw;
-    - Some gfx problems in ladykill, 3kokushi, puzzli, gakusai, seem related to how we handle 
-	  windows, wrapping, read-modify-write areas;
-	- puzzli: emulate hblank irq and fix video routines here (water effect not emulated?);
+    - CRT Controller, also understand why it needs so many writes before actual parameters;
+    - Wrong color bars in service mode (e.g. balcube, toride2g). They use solid color tiles (80xx),
+      but the right palette is not at 00-ff.
+      Related to the unknown table in the RAM mapped just before the palette?
+      Update: the colors should have a common bank of 0xb (so 0x8bxx), it's unknown why the values
+      diverges, the blitter is responsible of that upload fwiw;
+    - Some gfx problems in ladykill, 3kokushi, puzzli, gakusai, seem related to how we handle
+      windows, wrapping, read-modify-write areas;
+    - puzzli: emulate hblank irq and fix video routines here (water effect not emulated?);
 
 ============================================================================
 
@@ -83,7 +83,7 @@ DEVICE_ADDRESS_MAP_START( map, 16, imagetek_i4100_device)
 	AM_RANGE(0x40000, 0x5ffff) AM_READWRITE(vram_2_r, vram_2_w) AM_SHARE("vram_2")
 	AM_RANGE(0x60000, 0x6ffff) AM_READ(gfxrom_r)
 	AM_RANGE(0x70000, 0x71fff) AM_READWRITE(scratchram_r, scratchram_w) AM_SHARE("scratchram") // unknown, maybe palette
-	AM_RANGE(0x72000, 0x73fff) AM_DEVREADWRITE("palette", palette_device, read, write) AM_SHARE("palette")
+	AM_RANGE(0x72000, 0x73fff) AM_DEVREADWRITE("palette", palette_device, read16, write16) AM_SHARE("palette")
 	AM_RANGE(0x74000, 0x74fff) AM_READWRITE(spriteram_r, spriteram_w) AM_SHARE("spriteram")
 	AM_RANGE(0x75000, 0x75fff) AM_READWRITE(rmw_vram_0_r, rmw_vram_0_w)
 	AM_RANGE(0x76000, 0x76fff) AM_READWRITE(rmw_vram_1_r, rmw_vram_1_w)
@@ -118,7 +118,7 @@ DEVICE_ADDRESS_MAP_START( v2_map, 16, imagetek_i4220_device)
 	AM_RANGE(0x40000, 0x5ffff) AM_READWRITE(vram_2_r, vram_2_w) AM_SHARE("vram_2")
 	AM_RANGE(0x60000, 0x6ffff) AM_READ(gfxrom_r)
 	AM_RANGE(0x70000, 0x71fff) AM_READWRITE(scratchram_r, scratchram_w) AM_SHARE("scratchram") // unknown, maybe palette
-	AM_RANGE(0x72000, 0x73fff) AM_DEVREADWRITE("palette", palette_device, read, write) AM_SHARE("palette")
+	AM_RANGE(0x72000, 0x73fff) AM_DEVREADWRITE("palette", palette_device, read16, write16) AM_SHARE("palette")
 	AM_RANGE(0x74000, 0x74fff) AM_READWRITE(spriteram_r, spriteram_w) AM_SHARE("spriteram")
 	AM_RANGE(0x75000, 0x75fff) AM_READWRITE(rmw_vram_0_r, rmw_vram_0_w)
 	AM_RANGE(0x76000, 0x76fff) AM_READWRITE(rmw_vram_1_r, rmw_vram_1_w)
@@ -163,7 +163,7 @@ DEVICE_ADDRESS_MAP_START( v3_map, 16, imagetek_i4300_device)
 	AM_RANGE(0x40000, 0x5ffff) AM_READWRITE(vram_2_r, vram_2_w) AM_SHARE("vram_2")
 	AM_RANGE(0x60000, 0x6ffff) AM_READ(gfxrom_r)
 	AM_RANGE(0x70000, 0x71fff) AM_READWRITE(scratchram_r, scratchram_w) AM_SHARE("scratchram") // unknown, maybe palette
-	AM_RANGE(0x72000, 0x73fff) AM_DEVREADWRITE("palette", palette_device, read, write) AM_SHARE("palette")
+	AM_RANGE(0x72000, 0x73fff) AM_DEVREADWRITE("palette", palette_device, read16, write16) AM_SHARE("palette")
 	AM_RANGE(0x74000, 0x74fff) AM_READWRITE(spriteram_r, spriteram_w) AM_SHARE("spriteram")
 	AM_RANGE(0x75000, 0x75fff) AM_READWRITE(rmw_vram_0_r, rmw_vram_0_w)
 	AM_RANGE(0x76000, 0x76fff) AM_READWRITE(rmw_vram_1_r, rmw_vram_1_w)
@@ -246,7 +246,7 @@ imagetek_i4300_device::imagetek_i4300_device(const machine_config &mconfig, cons
 //  configuration addiitons
 //-------------------------------------------------
 
-MACHINE_CONFIG_MEMBER(imagetek_i4100_device::device_add_mconfig)
+MACHINE_CONFIG_START(imagetek_i4100_device::device_add_mconfig)
 	MCFG_PALETTE_ADD("palette", 0x1000)
 	MCFG_PALETTE_FORMAT(GGGGGRRRRRBBBBBx)
 MACHINE_CONFIG_END
@@ -623,7 +623,7 @@ void imagetek_i4100_device::blt_write( address_space &space, const int tmap, con
 		case 2: vram_1_w(space, offs, data, mask);    break;
 		case 3: vram_2_w(space, offs, data, mask);    break;
 	}
-//  logerror("%s : Blitter %X] %04X <- %04X & %04X\n", space.machine().describe_context(), tmap, offs, data, mask);
+//  logerror("%s : Blitter %X] %04X <- %04X & %04X\n", machine().describe_context(), tmap, offs, data, mask);
 }
 
 /***************************************************************************
@@ -689,7 +689,7 @@ WRITE16_MEMBER( imagetek_i4100_device::blitter_w )
 		int shift   = (dst_offs & 0x80) ? 0 : 8;
 		uint16_t mask = (dst_offs & 0x80) ? 0x00ff : 0xff00;
 
-//      logerror("CPU #0 PC %06X : Blitter regs %08X, %08X, %08X\n", space.device().safe_pc(), tmap, src_offs, dst_offs);
+//      logerror("%s Blitter regs %08X, %08X, %08X\n", machine().describe_context(), tmap, src_offs, dst_offs);
 
 		dst_offs >>= 7 + 1;
 		switch (tmap)
@@ -699,7 +699,7 @@ WRITE16_MEMBER( imagetek_i4100_device::blitter_w )
 			case 3:
 				break;
 			default:
-				logerror("CPU #0 PC %06X : Blitter unknown destination: %08X\n", space.device().safe_pc(), tmap);
+				logerror("%s Blitter unknown destination: %08X\n", machine().describe_context(), tmap);
 				return;
 		}
 
@@ -709,7 +709,7 @@ WRITE16_MEMBER( imagetek_i4100_device::blitter_w )
 
 			src_offs %= m_gfxrom_size;
 			b1 = m_gfxrom[src_offs];
-//          logerror("CPU #0 PC %06X : Blitter opcode %02X at %06X\n", space.device().safe_pc(), b1, src_offs);
+//          logerror("%s Blitter opcode %02X at %06X\n", machine().describe_context(), b1, src_offs);
 			src_offs++;
 
 			count = ((~b1) & 0x3f) + 1;
@@ -785,7 +785,7 @@ WRITE16_MEMBER( imagetek_i4100_device::blitter_w )
 				break;
 
 			default:
-				//logerror("CPU #0 PC %06X : Blitter unknown opcode %02X at %06X\n",space.device().safe_pc(),b1,src_offs-1);
+				//logerror("%s Blitter unknown opcode %02X at %06X\n",machine().describe_context(),b1,src_offs-1);
 				return;
 			}
 
@@ -1069,7 +1069,7 @@ void imagetek_i4100_device::draw_tilemap( screen_device &screen, bitmap_ind16 &b
 {
 	int y;
 
-	bitmap_ind8 &priority_bitmap = m_screen->priority();
+	bitmap_ind8 &priority_bitmap = screen.priority();
 
 	int width  = big ? 4096 : 2048;
 	int height = big ? 4096 : 2048;

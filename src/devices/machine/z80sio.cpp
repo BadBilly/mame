@@ -242,12 +242,12 @@ DEFINE_DEVICE_TYPE(UPD7201_NEW,    upd7201_new_device, "upd7201_new",    "NEC uP
 //-------------------------------------------------
 //  device_add_mconfig - add device configuration
 //-------------------------------------------------
-MACHINE_CONFIG_MEMBER( z80sio_device::device_add_mconfig )
+MACHINE_CONFIG_START(z80sio_device::device_add_mconfig)
 	MCFG_DEVICE_ADD(CHANA_TAG, Z80SIO_CHANNEL, 0)
 	MCFG_DEVICE_ADD(CHANB_TAG, Z80SIO_CHANNEL, 0)
 MACHINE_CONFIG_END
 
-MACHINE_CONFIG_MEMBER( i8274_new_device::device_add_mconfig )
+MACHINE_CONFIG_START(i8274_new_device::device_add_mconfig)
 	MCFG_DEVICE_ADD(CHANA_TAG, I8274_CHANNEL, 0)
 	MCFG_DEVICE_ADD(CHANB_TAG, I8274_CHANNEL, 0)
 MACHINE_CONFIG_END
@@ -1128,7 +1128,7 @@ void z80sio_channel::sync_tx_sr_empty()
 		LOGTX("%s() Channel %c Transmit FCS '%04x' m_wr5:%02x\n", FUNCNAME, 'A' + m_index, m_tx_crc, m_wr5);
 
 		// just for fun, SDLC sends the FCS inverted in reverse bit order
-		uint16_t const fcs(BITSWAP16(m_tx_crc, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
+		uint16_t const fcs(bitswap<16>(m_tx_crc, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
 		tx_setup(((m_wr4 & WR4_SYNC_MODE_MASK) == WR4_SYNC_MODE_SDLC) ? ~fcs : fcs, 16, 0, false, true);
 
 		// set the underrun flag so it will send sync next time

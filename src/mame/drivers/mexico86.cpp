@@ -83,11 +83,11 @@ READ8_MEMBER(mexico86_state::kiki_ym2203_r)
 static ADDRESS_MAP_START( mexico86_map, AS_PROGRAM, 8, mexico86_state )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
 	AM_RANGE(0x8000, 0xbfff) AM_ROMBANK("bank1")                    /* banked roms */
-	AM_RANGE(0xc000, 0xe7ff) AM_RAM AM_SHARE("share1")                  /* shared with sound cpu */
+	AM_RANGE(0xc000, 0xd4ff) AM_RAM AM_SHARE("videoram")
 	AM_RANGE(0xd500, 0xd7ff) AM_RAM AM_SHARE("objectram")
+	AM_RANGE(0xe000, 0xe7ff) AM_RAM AM_SHARE("share1")                  /* shared with sound cpu */
 	AM_RANGE(0xe800, 0xe8ff) AM_RAM AM_SHARE("protection_ram")  /* shared with mcu */
 	AM_RANGE(0xe900, 0xefff) AM_RAM
-	AM_RANGE(0xc000, 0xd4ff) AM_RAM AM_SHARE("videoram")
 	AM_RANGE(0xf000, 0xf000) AM_WRITE(mexico86_bankswitch_w)    /* program and gfx ROM banks */
 	AM_RANGE(0xf008, 0xf008) AM_WRITE(mexico86_f008_w)          /* cpu reset lines + other unknown stuff */
 	AM_RANGE(0xf010, 0xf010) AM_READ_PORT("IN3")
@@ -423,7 +423,7 @@ void mexico86_state::machine_reset()
 	m_charbank = 0;
 }
 
-static MACHINE_CONFIG_START( mexico86 )
+MACHINE_CONFIG_START(mexico86_state::mexico86)
 
 	/* basic machine hardware */
 	MCFG_CPU_ADD("maincpu",Z80, 24000000/4)      /* 6 MHz, Uses clock divided 24MHz OSC */
@@ -471,7 +471,7 @@ static MACHINE_CONFIG_START( mexico86 )
 MACHINE_CONFIG_END
 
 
-static MACHINE_CONFIG_DERIVED( knightb, mexico86 )
+MACHINE_CONFIG_DERIVED(mexico86_state::knightb, mexico86)
 
 	/* basic machine hardware */
 
@@ -483,7 +483,7 @@ static MACHINE_CONFIG_DERIVED( knightb, mexico86 )
 MACHINE_CONFIG_END
 
 
-static MACHINE_CONFIG_DERIVED( kikikai, knightb )
+MACHINE_CONFIG_DERIVED(mexico86_state::kikikai, knightb)
 
 	/* basic machine hardware */
 

@@ -39,35 +39,6 @@
 #define INT_SET             0x100
 #define INT_CLEAR           0x200
 
-/* ULA context */
-
-struct ULA
-{
-	uint8_t interrupt_status;
-	uint8_t interrupt_control;
-	uint8_t rompage;
-	uint16_t screen_start;
-	uint16_t screen_base;
-	int screen_size;
-	uint16_t screen_addr;
-	uint8_t *vram;
-	int current_pal[16];
-	int communication_mode;
-	int screen_mode;
-	int shiftlock_mode;
-	int capslock_mode;
-//  int scanline;
-	/* tape reading related */
-	uint32_t tape_value;
-	int tape_steps;
-	int bit_count;
-	int high_tone_set;
-	int start_bit;
-	int stop_bit;
-	int tape_running;
-	uint8_t tape_byte;
-};
-
 class accomm_state : public driver_device
 {
 public:
@@ -104,6 +75,7 @@ public:
 	DECLARE_PALETTE_INIT(accomm);
 	INTERRUPT_GEN_MEMBER(vbl_int);
 
+	void accomm(machine_config &config);
 protected:
 	// devices
 	required_device<g65816_device> m_maincpu;
@@ -125,6 +97,37 @@ protected:
 
 private:
 	bool m_ch00rom_enabled;
+
+	/* ULA context */
+
+	struct ULA
+	{
+		uint8_t interrupt_status;
+		uint8_t interrupt_control;
+		uint8_t rompage;
+		uint16_t screen_start;
+		uint16_t screen_base;
+		int screen_size;
+		uint16_t screen_addr;
+		uint8_t *vram;
+		int current_pal[16];
+		int communication_mode;
+		int screen_mode;
+		int shiftlock_mode;
+		int capslock_mode;
+		//  int scanline;
+		/* tape reading related */
+		uint32_t tape_value;
+		int tape_steps;
+		int bit_count;
+		int high_tone_set;
+		int start_bit;
+		int stop_bit;
+		int tape_running;
+		uint8_t tape_byte;
+	};
+
+
 	ULA m_ula;
 	int m_map4[256];
 	int m_map16[256];
@@ -825,8 +828,8 @@ static INPUT_PORTS_START( accomm )
 	PORT_BIT(0x08, IP_ACTIVE_HIGH, IPT_UNUSED)
 INPUT_PORTS_END
 
-static MACHINE_CONFIG_START( accomm )
-	MCFG_CPU_ADD("maincpu", G65816, XTAL_16MHz / 8)
+MACHINE_CONFIG_START(accomm_state::accomm)
+	MCFG_CPU_ADD("maincpu", G65816, XTAL(16'000'000) / 8)
 	MCFG_CPU_PROGRAM_MAP(main_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", accomm_state, vbl_int)
 
@@ -858,7 +861,7 @@ static MACHINE_CONFIG_START( accomm )
 	/* rtc pcf8573 */
 
 	/* via */
-	MCFG_DEVICE_ADD("via6522", VIA6522, XTAL_16MHz / 16)
+	MCFG_DEVICE_ADD("via6522", VIA6522, XTAL(16'000'000) / 16)
 	MCFG_VIA6522_WRITEPA_HANDLER(DEVWRITE8("cent_data_out", output_latch_device, write))
 	MCFG_VIA6522_CA2_HANDLER(DEVWRITELINE("centronics", centronics_device, write_strobe))
 
@@ -873,7 +876,7 @@ static MACHINE_CONFIG_START( accomm )
 	MCFG_RS232_DCD_HANDLER(DEVWRITELINE("acia", acia6850_device, write_dcd))
 	MCFG_RS232_CTS_HANDLER(DEVWRITELINE("acia", acia6850_device, write_cts))
 
-	MCFG_DEVICE_ADD("acia_clock", CLOCK, XTAL_16MHz / 13)
+	MCFG_DEVICE_ADD("acia_clock", CLOCK, XTAL(16'000'000) / 13)
 	MCFG_CLOCK_SIGNAL_HANDLER(WRITELINE(accomm_state, write_acia_clock))
 
 	/* econet */

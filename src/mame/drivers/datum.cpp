@@ -70,6 +70,7 @@ public:
 	DECLARE_WRITE8_MEMBER(pb_w);
 	DECLARE_INPUT_CHANGED_MEMBER(trigger_reset);
 	DECLARE_INPUT_CHANGED_MEMBER(trigger_nmi);
+	void datum(machine_config &config);
 private:
 	uint8_t m_keydata;
 	virtual void machine_reset() override;
@@ -161,7 +162,7 @@ WRITE8_MEMBER( datum_state::pa_w )
 	data ^= 0xff;
 	if (m_keydata > 3)
 	{
-		output().set_digit_value(m_keydata, BITSWAP8(data & 0x7f, 7, 0, 5, 6, 4, 2, 1, 3));
+		output().set_digit_value(m_keydata, bitswap<8>(data & 0x7f, 7, 0, 5, 6, 4, 2, 1, 3));
 		m_keydata = 0;
 	}
 
@@ -171,14 +172,14 @@ WRITE8_MEMBER( datum_state::pa_w )
 // select keyboard row, select a digit
 WRITE8_MEMBER( datum_state::pb_w )
 {
-	m_keydata = BITSWAP8(data, 7, 6, 5, 4, 0, 1, 2, 3) & 15;
+	m_keydata = bitswap<8>(data, 7, 6, 5, 4, 0, 1, 2, 3) & 15;
 	return;
 }
 
 
-static MACHINE_CONFIG_START( datum )
+MACHINE_CONFIG_START(datum_state::datum)
 	/* basic machine hardware */
-	MCFG_CPU_ADD("maincpu",M6802, XTAL_4MHz) // internally divided to 1 MHz
+	MCFG_CPU_ADD("maincpu",M6802, XTAL(4'000'000)) // internally divided to 1 MHz
 	MCFG_CPU_PROGRAM_MAP(datum_mem)
 
 	/* video hardware */

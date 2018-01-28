@@ -31,6 +31,12 @@ DECLARE_DEVICE_TYPE(I8088, i8088_cpu_device)
 #define MCFG_I8086_EXTRA_MAP(map) \
 	MCFG_DEVICE_ADDRESS_MAP(i8086_cpu_device::AS_EXTRA, map)
 
+#define MCFG_I8086_ESC_OPCODE_HANDLER(_write) \
+	devcb = &i8086_cpu_device::set_esc_opcode_handler(*device, DEVCB_##_write);
+
+#define MCFG_I8086_ESC_DATA_HANDLER(_write) \
+	devcb = &i8086_cpu_device::set_esc_data_handler(*device, DEVCB_##_write);
+
 enum
 {
 	I8086_PC = STATE_GENPC,
@@ -370,6 +376,12 @@ public:
 	template <class Object> static devcb_base &set_if_handler(device_t &device, Object &&cb)
 	{ return downcast<i8086_cpu_device &>(device).m_out_if_func.set_callback(std::forward<Object>(cb)); }
 
+	template <class Object> static devcb_base &set_esc_opcode_handler(device_t &device, Object &&cb)
+	{ return downcast<i8086_cpu_device &>(device).m_esc_opcode_handler.set_callback(std::forward<Object>(cb)); }
+
+	template <class Object> static devcb_base &set_esc_data_handler(device_t &device, Object &&cb)
+	{ return downcast<i8086_cpu_device &>(device).m_esc_data_handler.set_callback(std::forward<Object>(cb)); }
+
 protected:
 	i8086_cpu_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock, int data_bus_size);
 
@@ -378,7 +390,6 @@ protected:
 	virtual uint32_t execute_input_lines() const override { return 1; }
 	virtual uint8_t fetch_op() override;
 	virtual uint8_t fetch() override;
-	uint32_t pc() { return m_pc = (m_sregs[CS] << 4) + m_ip; }
 
 	address_space_config m_program_config;
 	address_space_config m_opcodes_config;
@@ -388,6 +399,11 @@ protected:
 	address_space_config m_io_config;
 	static const uint8_t m_i8086_timing[200];
 	devcb_write_line m_out_if_func;
+	devcb_write32 m_esc_opcode_handler;
+	devcb_write32 m_esc_data_handler;
+
+protected:
+	uint32_t update_pc() { return m_pc = (m_sregs[CS] << 4) + m_ip; }
 };
 
 class i8088_cpu_device : public i8086_cpu_device
